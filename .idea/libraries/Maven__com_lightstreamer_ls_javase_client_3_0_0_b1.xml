@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.lightstreamer:ls-javase-client:3.0.0-b1">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/lightstreamer/ls-javase-client/3.0.0-b1/ls-javase-client-3.0.0-b1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/lightstreamer/ls-javase-client/3.0.0-b1/ls-javase-client-3.0.0-b1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/lightstreamer/ls-javase-client/3.0.0-b1/ls-javase-client-3.0.0-b1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
