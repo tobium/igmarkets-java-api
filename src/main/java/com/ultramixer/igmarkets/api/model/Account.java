@@ -227,4 +227,9 @@ public class Account {
         this.canTransferTo = canTransferTo;
     }
 
+    @Override
+    public String toString()
+    {
+        return String.format("Account-ID: %s - Account-Name:%s - Account-Type:%s - Currency:%s - Status:%s",this.getAccountId(),this.getAccountName(),this.getAccountType(),this.getCurrency(),this.getStatus());
+    }
 }

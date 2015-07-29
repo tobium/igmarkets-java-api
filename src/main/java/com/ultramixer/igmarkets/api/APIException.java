@@ -19,27 +19,9 @@
 
 package com.ultramixer.igmarkets.api;
 
-import com.mashape.unirest.http.exceptions.UnirestException;
-
 /**
- * Created by TB on 16.07.15.
+ * Created by TB on 29.07.15.
  */
-public class LogoutException extends LoginException
+public class APIException extends Exception
 {
-    public LogoutException()
-    {
-        super("Logout error");
-    }
-
-    public LogoutException(int loginStatus, String loginMessage, String errorCode)
-    {
-        super(loginStatus, loginMessage, errorCode);
-    }
-
-    public LogoutException(UnirestException e)
-    {
-        super(e);
-    }
 }
-
-

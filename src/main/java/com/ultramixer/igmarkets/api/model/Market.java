@@ -347,4 +347,10 @@ public class Market {
         this.scalingFactor = scalingFactor;
     }
 
+    @Override
+    public String toString()
+    {
+        return String.format("epic:%s instrumente:%s instrument-type:%s market state:%s",this.getEpic(),this.getInstrumentName(),this.getInstrumentType(),this.getMarketStatus());
+    }
 }
+

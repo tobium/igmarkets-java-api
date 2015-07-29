@@ -20,6 +20,11 @@
 package com.ultramixer.igmarkets.api;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.ultramixer.igmarkets.api.model.GeneralErrors;
+import org.apache.http.HttpStatus;
+import org.apache.http.impl.client.HttpClients;
+
+import java.net.UnknownHostException;
 
 /**
  * Created by TB on 16.07.15.
@@ -28,6 +33,7 @@ public class LoginException extends Exception
 {
     private int loginStatus;
     private String loginMessage;
+    private String errorCode;
 
     public LoginException(String message)
     {
@@ -35,21 +41,25 @@ public class LoginException extends Exception
     }
 
 
-
     public LoginException()
     {
         super("Login error");
     }
 
-    public LoginException(int loginStatus, String loginMessage)
+    public LoginException(int loginStatus, String loginMessage, String errorCode)
     {
         this.loginStatus = loginStatus;
         this.loginMessage = loginMessage;
+        this.errorCode = errorCode;
     }
 
     public LoginException(UnirestException e)
     {
         super(e);
+        if(e.getCause() instanceof UnknownHostException)
+        {
+            this.setErrorCode("error.no_internet_connection");
+        }
     }
 
     public int getLoginStatus()
@@ -70,5 +80,27 @@ public class LoginException extends Exception
     public void setLoginMessage(String loginMessage)
     {
         this.loginMessage = loginMessage;
+    }
+
+    public String getErrorCode()
+    {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode)
+    {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage()
+    {
+        return GeneralErrors.getError(getErrorCode());
+
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("LoginException: %s - %s - %s: %s", getLoginStatus(), getLoginMessage(), getErrorCode(), getErrorMessage());
     }
 }

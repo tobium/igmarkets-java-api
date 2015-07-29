@@ -34,8 +34,12 @@ import com.ultramixer.igmarkets.api.model.*;
  */
 public class API
 {
-    private String apiURL = "https://demo-api.ig.com/gateway/deal";
+    public static final String API_URL_REAL = "https://api.ig.com/gateway/deal";
+    public static final String API_URL_DEMO = "https://demo-api.ig.com/gateway/deal";
+
+    private String apiURL = API_URL_DEMO;
     private String apiKey = "";
+    private boolean demo;
 
     private Gson gson = null;
     private LoginResponse loginResponse;
@@ -53,13 +57,25 @@ public class API
     }
 
 
-    public void setApiKey(String apiKey)
+   /* public void setApiKey(String apiKey)
     {
         this.apiKey = apiKey;
     }
+    */
 
-    public LoginResponse connect(String username, String password) throws LoginException
+
+    public LoginResponse connect(String username, String password, String apiKey, boolean demo) throws LoginException
     {
+        this.apiKey = apiKey;
+        this.demo = demo;
+        if (!this.demo)
+        {
+            apiURL = API_URL_REAL;
+        }
+        else
+        {
+            apiURL = API_URL_DEMO;
+        }
         try
         {
             JsonNode json = new JsonNode("");
@@ -80,7 +96,8 @@ public class API
             }
             else
             {
-                throw new LoginException(response.getStatus(), response.getStatusText());
+                System.out.println("response = " + response);
+                throw new LoginException(response.getStatus(), response.getStatusText(), response.getBody().getObject().getString("errorCode"));
             }
 
         }
@@ -104,7 +121,7 @@ public class API
             }
             else
             {
-                throw new LogoutException(response.getStatus(), response.getStatusText());
+                throw new LogoutException(response.getStatus(), response.getStatusText(), response.getBody().getObject().getString("errorCode"));
             }
 
         }
@@ -166,6 +183,31 @@ public class API
         return null;
     }
 
+    public MarketDetails getMarketDetails(String epic) throws APIException
+    {
+        //
+        try
+        {
+            HttpResponse<JsonNode> response = createGetHttpRequest("markets/" + epic).header("version", "2").asJson();
+            if (response.getStatus() == 200)
+            {
+                return gson.fromJson(response.getBody().toString(), MarketDetails.class);
+            }
+            else
+            {
+                System.out.println("response = " + response);
+                //throw  new APIException(response.getStatus(),response.getBody().getObject().getString("errorCode"))
+                System.out.println("response = " + response);
+                System.out.println("response.getStatusText() = " + response.getStatusText());
+                System.out.println("response.getBody() = " + response.getBody());
+            }
+        }
+        catch (UnirestException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     //todo: Exceoptions
     public Accounts getAccounts()

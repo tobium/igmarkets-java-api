@@ -25,22 +25,27 @@ import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 /**
- * Created by TB on 17.07.15.
+ * Created by TB on 27.07.15.
  */
-public class TradeErrors
+public class GeneralErrors
 {
-    private static ResourceBundle bundle = ResourceBundle.getBundle("com.ultramixer.igmarkets.api.TradeErrors", new UTF8Control());
-    private static Logger logger = Logger.getLogger(TradeErrors.class.getName());
 
+    private static Logger logger = Logger.getLogger(GeneralErrors.class.getName());
+    private static ResourceBundle bundle = ResourceBundle.getBundle("com.ultramixer.igmarkets.api.GeneralErrors", new UTF8Control());
 
 
     public static String getError(String reasonID)
     {
         String s = reasonID;
+        if (reasonID == null)
+        {
+            return "no error code";
+        }
         if (bundle.containsKey(reasonID))
         {
             s = bundle.getString(reasonID);
         }
         return s;
     }
+
 }

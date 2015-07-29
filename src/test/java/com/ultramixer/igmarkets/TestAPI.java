@@ -19,15 +19,10 @@
 
 package com.ultramixer.igmarkets;
 
-import com.ultramixer.igmarkets.api.API;
-import com.ultramixer.igmarkets.api.IGBigDecimal;
-import com.ultramixer.igmarkets.api.LoginException;
-import com.ultramixer.igmarkets.api.LogoutException;
-import com.ultramixer.igmarkets.api.model.LoginResponse;
-import com.ultramixer.igmarkets.api.model.Watchlist;
-import com.ultramixer.igmarkets.api.model.Watchlists;
-import com.ultramixer.igmarkets.api.model.WorkingOrderV2Request;
-import junit.framework.Assert;
+import com.ultramixer.igmarkets.api.*;
+import com.ultramixer.igmarkets.api.model.*;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.logging.Logger;
@@ -37,9 +32,10 @@ import java.util.logging.Logger;
  */
 public class TestAPI
 {
-    public static final String USERNAME = "";
-    public static final String PASSWORD = "";
-    public static final String APIKEY = "";
+    public static String USERNAME;
+    public static String PASSWORD;
+    public static Boolean DEMO;
+    public static String APIKEY;
     private Logger logger = Logger.getLogger(getClass().getName());
 
     public static void main(String[] args)
@@ -47,6 +43,20 @@ public class TestAPI
         new TestAPI().test();
     }
 
+
+    @Before
+    public void setupTest()
+    {
+        USERNAME = System.getProperty("igapi.username");
+        PASSWORD = System.getProperty("igapi.password");
+        DEMO = Boolean.valueOf(System.getProperty("igapi.demo"));
+        APIKEY = System.getProperty("igapi.apikey");
+
+        if (USERNAME == null || PASSWORD == null || APIKEY == null || DEMO == null)
+        {
+            Assert.fail("Test needs username, password, apikey and demo for a valid ig.com account. Please specify it the Java properties 'igapi.username', 'igapi.password', 'igapi.apikey' and 'igapi.demo'");
+        }
+    }
 
     @Test
     public void test()
@@ -57,8 +67,8 @@ public class TestAPI
         {
 
 
-            api.setApiKey(APIKEY);
-            loginResponse = api.connect(USERNAME, PASSWORD);
+            loginResponse = api.connect(USERNAME, PASSWORD, APIKEY, DEMO);
+            System.out.println("loginResponse.getCurrentAccountId() = " + loginResponse.getCurrentAccountId());
             Assert.assertNotNull(loginResponse);
         }
         catch (LoginException e)
@@ -70,11 +80,57 @@ public class TestAPI
         }
 
 
+        Accounts accounts = api.getAccounts();
+        Assert.assertNotNull("Accountsshould not be null", accounts);
+        for (Account account : accounts.getAccounts())
+        {
+            System.out.println("account = " + account);
+            System.out.println("account.getPreferred() = " + account.getPreferred());
+        }
+
+
         Watchlists watchlists = api.getWatchlists();
+        Market market = null;
         for (Watchlist watchlist : watchlists.getWatchlists())
         {
             System.out.println("watchlist = " + watchlist.getName());
+            System.out.println("watchlist.getDefaultSystemWatchlist() = " + watchlist.getDefaultSystemWatchlist());
+            System.out.println("watchlist.getId() = " + watchlist.getId());
+            Markets watchlistMarkets = api.getWatchlist(watchlist.getId());
+            int i = 0;
+            for (Market _market : watchlistMarkets.getMarkets())
+            {
+                System.out.println("market = " + _market);
+                if (i == 1)
+                {
+                    market = _market;
+                }
+                i++;
+            }
         }
+
+        System.out.println("getMarketDetails for = " + market);
+
+        MarketDetails marketDetails = null;
+        try
+        {
+            marketDetails = api.getMarketDetails(market.getEpic());
+            System.out.println("marketDetails = " + marketDetails);
+            System.out.println("marketDetails.getInstrument().getCurrencies() = " + marketDetails.getInstrument().getCurrencies());
+            for (Currency currency : marketDetails.getInstrument().getCurrencies())
+            {
+                System.out.println("currency.getCode() = " + currency.getCode());
+                System.out.println("currency.getSymbol() = " + currency.getSymbol());
+                System.out.println("currency.getIsDefault() = " + currency.getIsDefault());
+            }
+        }
+        catch (APIException e)
+        {
+            e.printStackTrace();
+            Assert.fail(e.toString());
+        }
+        Assert.assertNotNull(marketDetails);
+
 
         WorkingOrderV2Request workingOrderV2Request = new WorkingOrderV2Request();
         workingOrderV2Request.setCurrencyCode("USD");
@@ -93,6 +149,8 @@ public class TestAPI
         //workingOrderV2Request.setStopDistance(5);
         //  workingOrderV2Request.setLimitLevel(IGBigDecimal.create(1.08031));
 
+        if (DEMO)
+        {
         /*
         String dealReference = api.createWorkingOrderV2(workingOrderV2Request);
         System.out.println("dealReference = " + dealReference);
@@ -106,6 +164,7 @@ public class TestAPI
             System.out.println("TradeErrors.getTradeError(tradeConfirmation.getReason()) = " + TradeErrors.getTradeError(tradeConfirmation.getReason()));
         }
         */
+        }
 
 
         /*
@@ -115,11 +174,7 @@ public class TestAPI
             System.out.println("market = " + market);
         }
 
-        Accounts accounts = api.getAccounts();
-        for (Account account : accounts.getAccounts())
-        {
-            System.out.println("account = " + account.getAccountName());
-        }
+
 
 
         IGLightStreamer igLightStreamer = new IGLightStreamer();
